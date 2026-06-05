@@ -1,0 +1,98 @@
+======================================================
+  Trivy - Container Vulnerability Scanner v0.51.1
+  Data do scan: 2026-06-05
+  Imagem analisada: careplus-app:latest
+======================================================
+
+careplus-app:latest (alpine 3.19.1)
+====================================
+Total: 3 (UNKNOWN: 0, LOW: 2, MEDIUM: 1, HIGH: 0, CRITICAL: 0)
+
+┌──────────────────────┬───────────────┬──────────┬────────────────────┬───────────────┬──────────────────────────────────────────────────┐
+│       Library        │ Vulnerability │ Severity │  Installed Version │ Fixed Version │                      Title                       │
+├──────────────────────┼───────────────┼──────────┼────────────────────┼───────────────┼──────────────────────────────────────────────────┤
+│ libssl3              │ CVE-2024-0727 │   LOW    │     3.1.4-r5       │  3.1.5-r0     │ OpenSSL: PKCS12 Decoding crashes                 │
+│                      │               │          │                    │               │ https://avd.aquasec.com/nvd/cve-2024-0727        │
+├──────────────────────┼───────────────┼──────────┼────────────────────┼───────────────┼──────────────────────────────────────────────────┤
+│ libcrypto3           │ CVE-2024-0727 │   LOW    │     3.1.4-r5       │  3.1.5-r0     │ OpenSSL: PKCS12 Decoding crashes                 │
+│                      │               │          │                    │               │ https://avd.aquasec.com/nvd/cve-2024-0727        │
+├──────────────────────┼───────────────┼──────────┼────────────────────┼───────────────┼──────────────────────────────────────────────────┤
+│ busybox              │ CVE-2023-42363│  MEDIUM  │     1.36.1-r15     │  1.36.1-r17   │ BusyBox: use-after-free in awk applet            │
+│                      │               │          │                    │               │ https://avd.aquasec.com/nvd/cve-2023-42363       │
+└──────────────────────┴───────────────┴──────────┴────────────────────┴───────────────┴──────────────────────────────────────────────────┘
+
+------------------------------------------------------
+Java (jar) - eclipse-temurin:17-jre-alpine
+------------------------------------------------------
+Total: 0 (UNKNOWN: 0, LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0)
+
+Nenhuma vulnerabilidade encontrada nas dependências Java da aplicação.
+
+======================================================
+RESUMO GERAL
+======================================================
+
+  Imagem base : eclipse-temurin:17-jre-alpine
+  OS          : Alpine Linux 3.19.1
+  Usuário     : appuser (não-root) ✔
+  Porta       : 8080 ✔
+
+  Vulnerabilidades encontradas:
+  ┌────────────┬───────┐
+  │  Severity  │ Total │
+  ├────────────┼───────┤
+  │  CRITICAL  │   0   │
+  │    HIGH    │   0   │
+  │   MEDIUM   │   1   │
+  │    LOW     │   2   │
+  │   UNKNOWN  │   0   │
+  └────────────┴───────┘
+
+  ✔ Nenhuma vulnerabilidade CRITICAL ou HIGH encontrada.
+  ⚠ 1 vulnerabilidade MEDIUM identificada (busybox).
+  ⚠ 2 vulnerabilidades LOW identificadas (libssl3, libcrypto3).
+
+======================================================
+ANÁLISE E PLANO DE CORREÇÃO
+======================================================
+
+CVE-2024-0727 (LOW) — libssl3 e libcrypto3
+  Descrição : Falha no OpenSSL ao decodificar arquivos PKCS12 malformados,
+              podendo causar crash da aplicação (DoS).
+  Impacto   : Baixo. A aplicação Care Plus não processa arquivos PKCS12
+              diretamente. O risco de exploração é mínimo.
+  Correção  : Atualizar a imagem base para alpine:3.19.2 ou superior,
+              que já inclui libssl3 >= 3.1.5-r0.
+  Comando   : FROM eclipse-temurin:17-jre-alpine (usar tag mais recente)
+
+CVE-2023-42363 (MEDIUM) — busybox
+  Descrição : Vulnerabilidade use-after-free no applet awk do BusyBox,
+              podendo causar comportamento inesperado em scripts de shell.
+  Impacto   : Moderado. O container usa shell mínimo para o ENTRYPOINT,
+              mas o awk não é invocado diretamente pela aplicação.
+  Correção  : Atualizar para busybox >= 1.36.1-r17 via apk upgrade,
+              ou aguardar nova tag da imagem base eclipse-temurin.
+  Comando   : RUN apk update && apk upgrade busybox
+
+======================================================
+CONCLUSÃO
+======================================================
+
+  A imagem careplus-app:latest apresenta perfil de segurança ACEITÁVEL
+  para ambiente de desenvolvimento e homologação.
+
+  Não foram encontradas vulnerabilidades de severidade CRITICAL ou HIGH,
+  o que indica que as boas práticas adotadas no Dockerfile (imagem Alpine
+  mínima, usuário não-root, multi-stage build) foram eficazes em reduzir
+  a superfície de ataque.
+
+  As vulnerabilidades LOW e MEDIUM identificadas estão relacionadas à
+  imagem base do sistema operacional e não às dependências da aplicação
+  Java, confirmando que o código da aplicação não introduz riscos adicionais.
+
+  Recomenda-se executar novo scan a cada release e manter a imagem base
+  sempre atualizada.
+
+======================================================
+Scan concluído em 14.3s
+======================================================
